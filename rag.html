@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能客服系統的 RAG 流程與資料篩選過程</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        
+        .flow-step {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .flow-step:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        #flowchart {
+            transition: opacity 0.5s ease;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- 主容器 -->
+    <div class="min-h-screen container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- 頁面頂部區域 -->
+        <header class="mb-12">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                    市政智能客服系統的 RAG 流程
+                </h1>
+            </div>
+            <p class="text-xl text-gray-600 max-w-3xl">
+                詳細分析市政智能客服系統中的檢索增強生成 (RAG) 流程與資料篩選過程
+            </p>
+        </header>
+
+        <!-- 介紹段落 -->
+        <section class="mb-16 fade-in">
+            <div class="prose prose-lg max-w-none">
+                <p class="text-lg mb-6">
+                    這個系統展示了市政智能客服中的 RAG (檢索增強生成) 流程，特別詳細說明了資料篩選的過程。整個流程分為兩大部分：地端檢索流程和雲端 AI 綜判。
+                </p>
+            </div>
+        </section>
+
+        <!-- 流程圖部分 -->
+        <section id="flowchart" class="mb-16 opacity-0">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-sitemap mr-3 text-blue-500"></i>
+                RAG 流程概觀
+            </h2>
+            <div class="flex flex-col md:flex-row gap-6 mb-10">
+                <div class="flex-1 bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-4 text-blue-600">地端檢索流程</h3>
+                    <p class="text-gray-700 mb-4">
+                        地端透過多層次篩選機制，從大量知識庫中選出最相關且最新的答案候選項。
+                    </p>
+                </div>
+                <div class="flex-1 bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+                    <h3 class="text-xl font-semibold mb-4 text-purple-600">雲端 AI 綜判</h3>
+                    <p class="text-gray-700 mb-4">
+                        雲端 AI 綜合評估地端傳來的候選答案，根據系統提示詞和使用者問句，生成最終回應。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 地端檢索流程詳解 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.2s">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-server mr-3 text-blue-500"></i>
+                地端檢索流程詳解
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- 步驟 1 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">1</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">語意相似度檢索</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>以問句到資料庫檢索相似度 0.45 分以上的答案</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>最多檢索 30 筆資料</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>涵蓋所有知識庫</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 2 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">2</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">知識庫篩選</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-filter text-yellow-500 mt-1 mr-2"></i>
+                                    <span>問句若有提及具體局處的關鍵詞（如：主計處、地政），會從上述 30 筆中，再篩出屬於該局處的知識庫</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-filter text-yellow-500 mt-1 mr-2"></i>
+                                    <span>若沒有提及具體局處名稱（如：小孩出生該做些啥），則略過此步驟</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 3 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">3</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">按知識庫優先級分配比例</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-sort-amount-down text-indigo-500 mt-1 mr-2"></i>
+                                    <span>按知識庫優先級（如：全球資訊網、1999）分配保障比例</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 4 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">4</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">按更新時間排序</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-clock text-teal-500 mt-1 mr-2"></i>
+                                    <span>最新的資料排在最前面</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 5 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-blue-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">5</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">最後得出 6 個候選名額</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-list-ol text-red-500 mt-1 mr-2"></i>
+                                    <span>系統右側的參考資料顯示最多 6 個候選答案</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 雲端 AI 綜判部分 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.4s">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-cloud mr-3 text-purple-500"></i>
+                雲端 AI 綜判
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 步驟 1 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-purple-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-purple-600 font-bold">1</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">綜判參考材料</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-file-alt text-blue-500 mt-1 mr-2"></i>
+                                    <span>系統提示詞</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-comment-alt text-green-500 mt-1 mr-2"></i>
+                                    <span>使用者問句</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <i class="fas fa-list text-amber-500 mt-1 mr-2"></i>
+                                    <span>6 個候選選內容</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 步驟 2 -->
+                <div class="flow-step bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+                    <div class="flex items-start">
+                        <div class="rounded-full bg-purple-100 w-10 h-10 flex items-center justify-center mr-4">
+                            <span class="text-purple-600 font-bold">2</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">輸出最終答案</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start">
+                                    <i class="fas fa-brain text-red-500 mt-1 mr-2"></i>
+                                    <span>基於參考材料，AI 綜合判斷後輸出最終回應</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 整體工作流程 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.6s">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-project-diagram mr-3 text-green-500"></i>
+                整體工作流程
+            </h2>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <p class="text-gray-700 leading-relaxed">
+                    整個 RAG 流程展現了智能問答系統資料篩選過程，它先在地端進行多層次篩選檢索，確保選出最相關、最新且來自正確部門的知識，然後在雲端通過 AI 技術進行最終綜合判斷，生成準確回答。這種設計既考慮到檢索效率，也保證了回答的品質與相關性，特別適合處理市政服務等領域特定的問答需求。
+                </p>
+            </div>
+        </section>
+        
+        <!-- 視覺化流程圖 -->
+        <section class="mb-16 fade-in" style="animation-delay: 0.8s">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-8 flex items-center">
+                <i class="fas fa-diagram-project mr-3 text-amber-500"></i>
+                RAG 流程視覺化
+            </h2>
+            
+            <!-- 改用 HTML/CSS 表格式的流程圖呈現 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- 地端檢索流程 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-blue-200">
+                    <h3 class="text-xl font-semibold mb-6 text-blue-600 text-center border-b border-blue-100 pb-2">
+                        地端檢索流程
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800">1. 語意相似度檢索</h4>
+                            <p class="text-gray-700 text-sm mt-1">以問句檢索相似度 0.45 分以上的答案，最多 30 筆</p>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-blue-400"></i>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800">2. 知識庫篩選</h4>
+                            <p class="text-gray-700 text-sm mt-1">問句若提及局處關鍵詞，篩出該局處知識庫</p>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-blue-400"></i>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800">3. 按知識庫優先級分配比例</h4>
+                            <p class="text-gray-700 text-sm mt-1">全球資訊網、1999 等優先保障比例</p>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-blue-400"></i>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800">4. 按更新時間排序</h4>
+                            <p class="text-gray-700 text-sm mt-1">最新資料優先</p>
+                        </div>
+                        <div class="flex justify-center">
+                            <i class="fas fa-arrow-down text-blue-400"></i>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                            <h4 class="font-medium text-blue-800">5. 最後得出 6 個候選名額</h4>
+                            <p class="text-gray-700 text-sm mt-1">依優先級與時效性確定最終候選答案</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 雲端 AI 綜判 -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-purple-200">
+                    <h3 class="text-xl font-semibold mb-6 text-purple-600 text-center border-b border-purple-100 pb-2">
+                        雲端 AI 綜判
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <h4 class="font-medium text-purple-800">1. 綜判參考材料</h4>
+                            <ul class="text-gray-700 text-sm mt-2 space-y-1">
+                                <li class="flex items-center">
+                                    <i class="fas fa-file-alt text-blue-500 mr-2"></i>
+                                    系統提示詞
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-comment-alt text-green-500 mr-2"></i>
+                                    使用者問句
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-list text-amber-500 mr-2"></i>
+                                    6 個候選答案內容
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 地端到雲端的連線指示 -->
+                        <div class="hidden md:flex justify-start -ml-8 -mt-12">
+                            <div class="w-16 h-16 border-t-2 border-l-2 border-dashed border-green-400 rounded-tl-xl transform -rotate-45"></div>
+                        </div>
+                        
+                        <div class="flex justify-center mt-8">
+                            <i class="fas fa-arrow-down text-purple-400"></i>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <h4 class="font-medium text-purple-800">2. 輸出最終答案</h4>
+                            <p class="text-gray-700 text-sm mt-1">
+                                <i class="fas fa-brain text-red-500 mr-2"></i>
+                                AI 綜合判斷後生成最終回應
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 流程整合說明 -->
+            <div class="bg-gray-50 p-4 rounded-lg mt-8 border border-gray-200">
+                <p class="text-gray-700 text-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                    地端檢索負責找出最相關的知識內容，雲端 AI 負責綜合評估並生成回答
+                </p>
+            </div>
+        </section>
+
+        <!-- 頁腳 -->
+        <footer class="mt-20 pt-10 border-t border-gray-200 text-center text-gray-600">
+            <p>作者姓名: [InfoChamp AI Task Force]</p>
+            <p class="mt-2 text-sm">&copy; 2023 市政智能客服系統</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 捲動動畫
+            setTimeout(() => {
+                document.getElementById('flowchart').classList.add('opacity-100');
+            }, 300);
+
+            // 觀察元素進入視圖
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                root: null,
+                threshold: 0.1,
+                rootMargin: '0px'
+            });
+
+            // 為所有淡入元素註冊觀察器
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+                el.style.opacity = 0;
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            });
+        });
+    </script>
+</body>
+</html> 

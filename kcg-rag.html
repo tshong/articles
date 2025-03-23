@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>響應式網頁展示</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定義樣式 */
+        .dark {
+            --bg-primary: #121212;
+            --text-primary: #f3f4f6;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+        }
+        
+        .light {
+            --bg-primary: #ffffff;
+            --text-primary: #1f2937;
+            --card-bg: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+
+        /* 過渡效果 */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 淺色/深色模式特定樣式 */
+        .dark body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .light body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .content-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        /* 卡片懸停效果 */
+        .hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* 根據頁面滾動位置設置動畫延遲 */
+        .fade-in:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in:nth-child(4) { animation-delay: 0.4s; }
+        .fade-in:nth-child(5) { animation-delay: 0.5s; }
+
+        /* 懶加載圖片的占位符 */
+        .lazy-image {
+            background-color: var(--border-color);
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="min-h-screen flex flex-col">
+        <!-- 導航欄 -->
+        <header class="content-card sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700">
+            <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="font-bold text-xl">文檔轉換預覽</div>
+                <div class="flex items-center space-x-4">
+                    <!-- 深色模式切換 -->
+                    <button id="theme-toggle" class="p-2 rounded-full focus:outline-none">
+                        <i class="fas fa-moon dark:hidden"></i>
+                        <i class="fas fa-sun hidden dark:inline"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要內容區 -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <!-- 頂部介紹區 -->
+            <div class="mb-10 fade-in">
+                <h1 class="text-3xl md:text-4xl font-bold mb-4">文檔標題將顯示在這裡</h1>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">這裡會呈現文檔的簡介或重點摘要，引導讀者了解內容的核心。</p>
+                
+                <!-- 內容導航 -->
+                <div class="content-card p-4 rounded-lg mb-8">
+                    <h2 class="text-xl font-semibold mb-2">目錄</h2>
+                    <ul class="space-y-1">
+                        <li><a href="#section1" class="text-blue-600 dark:text-blue-400 hover:underline">第一部分</a></li>
+                        <li><a href="#section2" class="text-blue-600 dark:text-blue-400 hover:underline">第二部分</a></li>
+                        <li><a href="#section3" class="text-blue-600 dark:text-blue-400 hover:underline">第三部分</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 內容區塊 -->
+            <div class="space-y-12">
+                <!-- 第一區塊 -->
+                <section id="section1" class="content-card p-6 rounded-lg fade-in hover-effect">
+                    <h2 class="text-2xl font-bold mb-4">第一部分標題</h2>
+                    <div class="prose max-w-none dark:prose-dark">
+                        <p>這裡是文檔的第一部分內容。根據原始文檔的結構和信息，我們會在這裡放置相關文字和數據。</p>
+                        
+                        <!-- 圖表示例 -->
+                        <div class="my-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-2">數據可視化</h3>
+                            <div class="h-64 flex items-center justify-center lazy-image rounded-md">
+                                <p class="text-center text-gray-500">圖表將在這裡顯示</p>
+                            </div>
+                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">圖表描述：這裡將提供對圖表數據的解釋和分析。</p>
+                        </div>
+                        
+                        <p>繼續第一部分的詳細說明和分析。這裡會包含原始文檔中的關鍵內容，但以更結構化和視覺化的方式呈現。</p>
+                    </div>
+                </section>
+
+                <!-- 第二區塊 -->
+                <section id="section2" class="content-card p-6 rounded-lg fade-in hover-effect">
+                    <h2 class="text-2xl font-bold mb-4">第二部分標題</h2>
+                    <div class="prose max-w-none dark:prose-dark">
+                        <p>第二部分的內容會放在這裡。我們會依據原始文檔的結構組織各個部分。</p>
+                        
+                        <!-- 列表示例 -->
+                        <div class="my-4">
+                            <h3 class="text-lg font-semibold mb-2">重點列表</h3>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li>第一個重點項目及其說明</li>
+                                <li>第二個重點項目及其說明</li>
+                                <li>第三個重點項目及其說明</li>
+                                <li>第四個重點項目及其說明</li>
+                            </ul>
+                        </div>
+                        
+                        <p>本部分的總結和過渡到下一部分。這樣的結構能夠幫助讀者更好地理解文檔中的邏輯關係。</p>
+                    </div>
+                </section>
+
+                <!-- 第三區塊 -->
+                <section id="section3" class="content-card p-6 rounded-lg fade-in hover-effect">
+                    <h2 class="text-2xl font-bold mb-4">第三部分標題</h2>
+                    <div class="prose max-w-none dark:prose-dark">
+                        <p>第三部分的內容將呈現在這裡。這部分可能包含結論、建議或其他重要的總結性內容。</p>
+                        
+                        <!-- 表格示例 -->
+                        <div class="my-6 overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">類別</th>
+                                        <th class="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">數值</th>
+                                        <th class="px-6 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">項目 A</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">85%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">完成</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">項目 B</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">62%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">進行中</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">項目 C</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">23%</td>
+                                        <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">延遲</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <p>最後的總結和建議將放置在這裡，為整個文檔提供清晰的收尾，並可能包含未來行動的建議。</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- 頁腳 -->
+        <footer class="content-card border-t border-gray-200 dark:border-gray-700 py-8">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="mb-4 md:mb-0">
+                        <p class="text-gray-600 dark:text-gray-400">作者: <span class="font-semibold">InfoChamp AI Task Force</span></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-500">文檔轉換日期: <time datetime="2025-03-23">2025年3月23日</time></p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- 腳本 -->
+    <script>
+        // 深色模式切換
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        // 檢查系統偏好設置
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            html.classList.remove('light');
+            html.classList.add('dark');
+        }
+
+        // 主題切換按鈕
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            html.classList.toggle('light');
+        });
+
+        // 滾動顯示動畫
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            fadeElements.forEach(element => {
+                observer.observe(element);
+            });
+        });
+
+        // 平滑滾動
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
