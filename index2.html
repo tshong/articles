@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台積電高效會議文化</title>
+    <!-- TailwindCSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 自定義全局樣式 */
+        :root {
+            --color-primary: #0066cc;
+            --color-secondary: #0095ff;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --transition-default: all 0.3s ease;
+        }
+
+        /* 淺色模式 */
+        .light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 深色模式 */
+        .dark-mode {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", "微軟正黑體", sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition-default);
+            line-height: 1.7;
+        }
+
+        /* 動畫效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+        .animate-delay-4 { animation-delay: 0.4s; }
+
+        /* 懸停效果 */
+        .hover-card {
+            transition: var(--transition-default);
+            border: 1px solid var(--border-color);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-color);
+            border-color: var(--color-secondary);
+        }
+
+        /* 強調文字 */
+        .highlight {
+            background: linear-gradient(transparent 80%, rgba(0, 102, 204, 0.2) 0);
+            font-weight: 500;
+        }
+
+        /* 按鈕效果 */
+        .btn {
+            transition: var(--transition-default);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        /* 自定義滾動條 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--color-secondary);
+            border-radius: 10px;
+        }
+
+        /* 內容區塊淡入效果 */
+        .content-section {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: var(--transition-default);
+        }
+
+        .content-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <!-- 頂部導航 -->
+    <header class="sticky top-0 z-50 bg-opacity-90 backdrop-filter backdrop-blur-md bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 animate-fadeIn">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-microchip text-blue-600 dark:text-blue-400 text-xl"></i>
+                <h1 class="text-xl font-bold">台積電高效會議文化</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+                    <i class="fas fa-sun text-yellow-500 dark:hidden"></i>
+                    <i class="fas fa-moon text-blue-300 hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要內容 -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 頂部摘要 -->
+        <section class="mb-12 content-section">
+            <div class="bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-300">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>台積電會議文化摘要
+                </h2>
+                <div class="space-y-3">
+                    <p class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>每次會議首先審視上次會議的未完成項目，確認進度</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>報告時先講結論（一分鐘內），再說明原因和細節</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>簡報前必須經過部門主管審核</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>若要指出其他部門問題，事先告知該部門</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>做出的承諾必須徹底執行並達成</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 文章內容 -->
+        <article class="prose prose-lg max-w-none dark:prose-invert">
+            <!-- 引言 -->
+            <section class="mb-10 content-section">
+                <p class="text-lg">對很多主管或員工來說，開會是日常。開會占據每天工作非常多的時間，但到底要如何開會？怎樣開會比較有效率？開會該注意哪些小細節？有沒有什麼禁忌？看看台積電是如何開會的，或許對增進開會效率會有些幫助。</p>
+            </section>
+
+            <!-- 關鍵做法 -->
+            <section class="mb-12 content-section">
+                <h2 class="text-2xl font-bold border-b-2 border-blue-500 dark:border-blue-400 pb-2 mb-6">
+                    <i class="fas fa-clipboard-check text-blue-600 dark:text-blue-400 mr-2"></i>台積電會議的關鍵做法
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- 做法卡片1 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-card">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mr-4">
+                                <i class="fas fa-history text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">回顧上次會議事項</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            <span class="font-bold">台積電每一次開會，最重要的一件事，是「review上一次開會的內容，包括未完成的事項等等」</span>，一定要讓相關人等報告上次開會後的待辦事項，確認問題獲得解決之後，才會繼續進行當天的新議程。
+                        </p>
+                    </div>
+
+                    <!-- 做法卡片2 -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-card">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mr-4">
+                                <i class="fas fa-bullseye text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">先講結論</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            進入正式會議後，令他印象最深刻的，就是主管會要求「每一位報告人 <span class="font-bold">一定要先講結論，再講為何要這樣做，時間大約只有一分鐘</span>」。你在這一分鐘內的報告內容，大概就決定你的命運了。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 張忠謀的故事 -->
+                <div class="mt-8 bg-gray-50 dark:bg-gray-900 p-6 rounded-xl border-l-4 border-blue-500 dark:border-blue-400 content-section">
+                    <h4 class="text-lg font-semibold mb-3">蔣尚義的經驗分享：</h4>
+                    <p class="italic text-gray-700 dark:text-gray-300">
+                        「他說，他剛到台積電時，還不太懂如何報告，一場三十分鐘的簡報，身為工程師的他只會流水帳式的報告，先說問題，再說實驗方式，接著是數據，最後是結論。「如果你這樣向張忠謀報告，你就麻煩大了。」他笑著回憶，張忠謀會罵人，甚至撕掉報告，叫你出去。」
+                    </p>
+                    <p class="mt-3 italic text-gray-700 dark:text-gray-300">
+                        「他說自己琢磨了好幾年，才學會反過來講，在報告一開始就先說結論，讓張忠謀覺得自己「值得花三十分鐘聽你講」，接下來，他就會很有耐心地聽你講細節，而且態度很友善。」
+                    </p>
+                </div>
+
+                <!-- 其他重要做法 -->
+                <div class="mt-8 space-y-6 content-section">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-card">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mr-4">
+                                <i class="fas fa-eye text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">主管事先審核</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            「每一個人要簡報的內容，一定要先讓部門主管知道」。如果你報告得七零八落，其他主管一定會問，你這個報告有給主管先看過嗎？如果沒有，你代誌就大條了，肯定會被K到滿頭包，而且不只報告的人被K，主管也會被K得很慘。
+                        </p>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover-card">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-blue-100 dark:bg-blue-900 rounded-full p-3 mr-4">
+                                <i class="fas fa-comments text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold">事先溝通</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            <span class="font-bold">「如果報告的人要指責別的部門的缺失，一定要在開會之前，就先知會該部門」</span>。也就是說，當你要提出的問題是發生在哪個部門時，要先與該部門主管就此事討論過，不能直接在會議中提出來，因為這樣做，不僅會讓該部門措手不及，會議主題也會失焦。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 開會禁忌 -->
+            <section class="mb-12 content-section">
+                <h2 class="text-2xl font-bold border-b-2 border-red-500 dark:border-red-400 pb-2 mb-6">
+                    <i class="fas fa-ban text-red-600 dark:text-red-400 mr-2"></i>台積電會議的禁忌
+                </h2>
+                
+                <div class="bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-xl p-6">
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3"></i>
+                            <span><span class="font-semibold">不要說太多細節</span> - 報告進度與方向，還有解決問題的方法及做法，要做出有目標及方向的結論，但細節不需要說太多。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3"></i>
+                            <span><span class="font-semibold">不要強調過程辛苦</span> - 你做了多少事、問過多少人、做了多少苦工、過程有多挑戰，這些都不需要講，主管不想聽這個，也沒有空聽。</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-times-circle text-red-500 mt-1 mr-3"></i>
+                            <span><span class="font-semibold">不要解釋困難點</span> - 只要報告進度，報告解決方法，不要一直講問題在哪裡。台積電找你來是要解決問題的，不是請你來抱怨的。</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 會議頻率 -->
+            <section class="mb-12 content-section">
+                <h2 class="text-2xl font-bold border-b-2 border-purple-500 dark:border-purple-400 pb-2 mb-6">
+                    <i class="fas fa-calendar-alt text-purple-600 dark:text-purple-400 mr-2"></i>會議頻率
+                </h2>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
+                    <p class="mb-4">對了，台積電的會議到底多不多？</p>
+                    <p class="mb-4">只要問一下台積電員工，絕不會有人告訴你會議不多。會議不多的人，大概都是因為自己的角色不太重要，或是準備要捲鋪蓋走人了。像當年還未離職前的梁孟松，就有很長一段時間沒事做，沒有會議要開。</p>
+                    <p>只要是正常的台積電員工，每個人的會議當然都不會少。雖然大家都想辦法減少開會，讓開會更有效率，但是晶圓廠內製造流程繁雜，牽涉細節太多，只有靠密集溝通，才能做到更佳管理。</p>
+                </div>
+            </section>
+
+            <!-- 承諾文化 -->
+            <section class="mb-12 content-section">
+                <h2 class="text-2xl font-bold border-b-2 border-green-500 dark:border-green-400 pb-2 mb-6">
+                    <i class="fas fa-handshake text-green-600 dark:text-green-400 mr-2"></i>承諾文化
+                </h2>
+                
+                <div class="bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-xl p-6">
+                    <p class="mb-4">關於在台積電開會，還有一點也很重要，這一點與開會本身不一定有直接關係，而是與工作態度有關，那就是：<span class="font-bold">每一個人對於自己說出來的承諾（commitment），一定要徹底執行並達成。也就是說，如果你說出了目標，就要說到做到，全力完成自己設定的工作目標。</span></p>
+                    
+                    <div class="mt-6 bg-white dark:bg-gray-800 p-5 rounded-lg">
+                        <h4 class="font-semibold mb-2">一位前半導體公司員工的轉職體驗：</h4>
+                        <p class="italic text-gray-700 dark:text-gray-300">
+                            「有一位朋友，原本在另一家半導體公司工作，後來轉到台積電任職。他說，在原本的公司，不論主管還是員工，大家都很習慣講很高大尚的目標，但最後往往都做不到，就算做不到也不會怎樣，反正事情過去就算了。」
+                        </p>
+                        <p class="mt-3 italic text-gray-700 dark:text-gray-300">
+                            「但是他到台積電後，發現大家講出來的話都一定會做到，不管是自己的主管或其他部門的同事，每個人都是如此。若有人說出來的承諾沒做到，通常都會「死得很難看」。」
+                        </p>
+                        <p class="mt-3 italic text-gray-700 dark:text-gray-300">
+                            「他說，在台積電這家公司上班，完全不能打馬虎眼。當你的同事們都說到做到，你自己就要努力改變自己。你講出目標之前，一定要先衡量一下自己做不做得到。一旦做出承諾，就一定要全力以赴，履行承諾。」
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 結論 -->
+            <section class="mb-12 content-section">
+                <h2 class="text-2xl font-bold border-b-2 border-gray-500 dark:border-gray-400 pb-2 mb-6">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>結論
+                </h2>
+                
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-xl p-6">
+                    <p>
+                        這位朋友說，他花了好長一段時間才讓自己完全調整過來。從他身上，我們可以看到一家企業的文化，的確可以對員工的行為帶來巨大的改變。
+                    </p>
+                </div>
+            </section>
+        </article>
+
+        <!-- 行動呼籲卡片 -->
+        <section class="my-12 content-section">
+            <div class="bg-blue-600 dark:bg-blue-800 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-10">
+                    <i class="fas fa-users fa-10x"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">提升您團隊的會議效率</h2>
+                <p class="mb-6">借鑑台積電的高效會議文化，為您的團隊創造更有價值的溝通環境。</p>
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn bg-white text-blue-600 py-3 px-6 rounded-lg font-semibold shadow-md">
+                        <i class="fas fa-download mr-2"></i>下載會議指南
+                    </button>
+                    <button class="btn bg-blue-800 dark:bg-blue-900 text-white py-3 px-6 rounded-lg font-semibold shadow-md">
+                        <i class="fas fa-share-alt mr-2"></i>分享文章
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁尾 -->
+    <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 py-8 animate-fadeIn">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <h3 class="text-lg font-bold flex items-center">
+                        <i class="fas fa-microchip text-blue-600 dark:text-blue-400 mr-2"></i>
+                        台積電高效會議文化
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">整理自企業實踐與經驗分享</p>
+                </div>
+                <div>
+                    <p class="text-gray-700 dark:text-gray-300 font-medium">作者資訊</p>
+                    <p class="text-gray-600 dark:text-gray-400">InfoChamp AI Task Force</p>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 text-center text-gray-500 dark:text-gray-400 text-sm">
+                <p>© 2025 版權所有，保留所有權利</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // 檢查系統深色/淺色模式偏好
+        function setInitialTheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+            }
+        }
+
+        // 切換主題
+        function toggleTheme() {
+            if (document.body.classList.contains('light-mode')) {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+            }
+        }
+
+        // 監聽滾動，添加內容區塊動畫
+        function handleScroll() {
+            const sections = document.querySelectorAll('.content-section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (sectionTop < windowHeight * 0.85) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setInitialTheme();
+            
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // 初始滾動檢查
+            handleScroll();
+            
+            // 滾動監聽
+            window.addEventListener('scroll', handleScroll);
+        });
+    </script>
+</body>
+</html>
