@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI流式語音轉文本服務項目分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        :root {
+            --color-primary: #4f46e5;
+            --color-primary-dark: #4338ca;
+            --color-secondary: #64748b;
+            --color-accent: #8b5cf6;
+            --color-bg-light: #f9fafb;
+            --color-bg-dark: #1e293b;
+            --color-text-light: #1e293b;
+            --color-text-dark: #e2e8f0;
+            --color-border-light: #e2e8f0;
+            --color-border-dark: #334155;
+            --color-card-light: #ffffff;
+            --color-card-dark: #334155;
+        }
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .light {
+            --color-bg: var(--color-bg-light);
+            --color-text: var(--color-text-light);
+            --color-border: var(--color-border-light);
+            --color-card: var(--color-card-light);
+        }
+        
+        .dark {
+            --color-bg: var(--color-bg-dark);
+            --color-text: var(--color-text-dark);
+            --color-border: var(--color-border-dark);
+            --color-card: var(--color-card-dark);
+        }
+        
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+        }
+        
+        .card {
+            background-color: var(--color-card);
+            border: 1px solid var(--color-border);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .btn {
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .fade-in {
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        
+        /* Code styling */
+        .code-block {
+            font-family: 'Courier New', monospace;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            transition: background-color 0.3s ease;
+        }
+        
+        .light .code-block {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .dark .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+        }
+        
+        /* Custom table styling */
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1rem 0;
+        }
+        
+        .custom-table th, .custom-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .custom-table th {
+            font-weight: 600;
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+        
+        .dark .custom-table th {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Feature cards */
+        .feature-card {
+            height: 100%;
+            cursor: default;
+        }
+        
+        /* Diagram styling */
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        .code-title {
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--color-border);
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+        
+        .light .code-title {
+            background-color: #e2e8f0;
+        }
+        
+        .dark .code-title {
+            background-color: #475569;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Nav link highlighting */
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--color-primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body class="light">
+    <!-- 頂部導航 -->
+    <nav class="sticky top-0 bg-opacity-80 backdrop-filter backdrop-blur-lg z-10" style="background-color: var(--color-bg);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" class="flex items-center">
+                        <i class="fas fa-microphone-alt text-indigo-600 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold">OpenAI 語音轉文本</span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#overview" class="nav-link px-3 py-2 rounded-md text-sm font-medium">概述</a>
+                        <a href="#architecture" class="nav-link px-3 py-2 rounded-md text-sm font-medium">架構</a>
+                        <a href="#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium">功能</a>
+                        <a href="#details" class="nav-link px-3 py-2 rounded-md text-sm font-medium">技術細節</a>
+                        <a href="#deployment" class="nav-link px-3 py-2 rounded-md text-sm font-medium">部署</a>
+                    </div>
+                </div>
+                <div>
+                    <button id="theme-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none">
+                        <i class="fas fa-moon text-gray-600 dark:text-gray-300 dark:hidden"></i>
+                        <i class="fas fa-sun text-gray-300 hidden dark:block"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 行動裝置導航 -->
+        <div class="md:hidden" id="mobile-menu" style="display: none;">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#overview" class="block px-3 py-2 rounded-md text-base font-medium">概述</a>
+                <a href="#architecture" class="block px-3 py-2 rounded-md text-base font-medium">架構</a>
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium">功能</a>
+                <a href="#details" class="block px-3 py-2 rounded-md text-base font-medium">技術細節</a>
+                <a href="#deployment" class="block px-3 py-2 rounded-md text-base font-medium">部署</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要內容 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 頁面標題 -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold mb-4 fade-in">OpenAI 流式語音轉文本服務</h1>
+            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto fade-in delay-100">
+                基於 OpenAI API 的實時語音轉文本解決方案，支援批處理與流式處理
+            </p>
+        </div>
+
+        <!-- 概述部分 -->
+        <section id="overview" class="mb-16 fade-in delay-200">
+            <h2 class="text-2xl font-bold mb-6 inline-flex items-center">
+                <i class="fas fa-info-circle mr-2 text-indigo-600"></i>
+                專案概述
+            </h2>
+            <div class="card rounded-lg p-6 mb-8">
+                <p class="mb-4">
+                    這個專案是一個使用 OpenAI API 將語音實時轉換為文本的服務，包含兩個主要功能：<strong>文件批處理轉錄</strong>和<strong>實時流式轉錄</strong>。專案採用 Python 開發，並提供了 Web 界面供用戶互動。
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-file-audio text-purple-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">文件轉錄</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            適用於預先錄製的音訊檔案，支援指定模型、語言提示和特定詞彙辨識率提升功能。
+                        </p>
+                    </div>
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-broadcast-tower text-green-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">實時流式轉錄</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300">
+                            通過 WebSocket 實現實時語音識別，支援多客戶端同時連接，即時返回轉錄結果。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 技術細節 -->
+        <section id="details" class="mb-16 fade-in delay-300">
+            <h2 class="text-2xl font-bold mb-6 inline-flex items-center">
+                <i class="fas fa-code mr-2 text-indigo-600"></i>
+                技術細節
+            </h2>
+            
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">OpenAI API 使用</h3>
+                <p class="mb-4">
+                    專案使用了 OpenAI 的兩種 API：
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">1. 文件轉錄 API</h4>
+                        <div class="code-block">
+                            <code># streaming_transcription.py<br>
+stream = self.client.audio.transcriptions.create(**params)</code>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            用於處理上傳的音訊檔案，支援多種參數配置
+                        </p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">2. 實時 WebSocket API</h4>
+                        <div class="code-block">
+                            <code># realtime_transcription_service.py<br>
+OPENAI_WSS_URL = "wss://api.openai.com/v1/realtime?intent=transcription"</code>
+                        </div>
+                        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            用於實時串流轉錄，支援連續音訊資料處理
+                        </p>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 mt-8">WebSocket 通訊</h3>
+                <p class="mb-4">
+                    專案實現了三層 WebSocket 通訊：
+                </p>
+                
+                <div class="overflow-x-auto">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>通訊層</th>
+                                <th>描述</th>
+                                <th>實現方式</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>瀏覽器 &lt;-&gt; Web 服務器</td>
+                                <td>客戶端與 Web 服務器的通訊</td>
+                                <td>瀏覽器 WebSocket API 和 aiohttp</td>
+                            </tr>
+                            <tr>
+                                <td>Web 服務器 &lt;-&gt; 轉錄服務</td>
+                                <td>Web 代理與轉錄服務的通訊</td>
+                                <td>aiohttp 和 websockets 庫</td>
+                            </tr>
+                            <tr>
+                                <td>轉錄服務 &lt;-&gt; OpenAI API</td>
+                                <td>轉錄服務與 OpenAI API 的通訊</td>
+                                <td>websockets 庫</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 mt-8">音訊處理</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">實時錄音配置</h4>
+                        <div class="code-block text-xs">
+                            <code>// static/index.html<br>
+const stream = await navigator.mediaDevices.getUserMedia({<br>
+&nbsp;&nbsp;audio: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;sampleRate: 16000,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;channelCount: 1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;echoCancellation: true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;noiseSuppression: true,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;autoGainControl: true<br>
+&nbsp;&nbsp;}<br>
+});<br><br>
+// 創建 MediaRecorder<br>
+mediaRecorder = new MediaRecorder(stream, {<br>
+&nbsp;&nbsp;mimeType: 'audio/webm',<br>
+&nbsp;&nbsp;audioBitsPerSecond: 16000<br>
+});</code>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">OpenAI API 配置</h4>
+                        <div class="code-block text-xs">
+                            <code># realtime_transcription_service.py<br>
+params = {<br>
+&nbsp;&nbsp;"model": "gpt-4o-mini-transcribe",<br>
+&nbsp;&nbsp;"encoding": "webm",<br>
+&nbsp;&nbsp;"sample_rate": 16000,<br>
+&nbsp;&nbsp;"enable_vad": True,<br>
+&nbsp;&nbsp;"stream_length": 10000,  # 10秒<br>
+&nbsp;&nbsp;"media_type": "audio/webm"<br>
+}<br><br>
+# 如果指定了語言，添加到參數中<br>
+if language:<br>
+&nbsp;&nbsp;params["language"] = language</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 mt-8">安全考量</h3>
+                <p class="mb-4">
+                    專案包含以下安全措施：
+                </p>
+                <ul class="list-disc pl-6 mb-4">
+                    <li class="mb-2">不在代碼中硬編碼 API 密鑰</li>
+                    <li class="mb-2">支援 SSL/TLS 加密（HTTPS/WSS）</li>
+                    <li class="mb-2">建議通過環境變數設置敏感資訊</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- 部署指南 -->
+        <section id="deployment" class="mb-16 fade-in delay-400">
+            <h2 class="text-2xl font-bold mb-6 inline-flex items-center">
+                <i class="fas fa-rocket mr-2 text-indigo-600"></i>
+                部署指南
+            </h2>
+            
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">系統要求</h3>
+                <ul class="list-disc pl-6 mb-6">
+                    <li class="mb-2">Python 3.7+</li>
+                    <li class="mb-2">主要依賴套件：
+                        <ul class="list-circle pl-6 mt-1">
+                            <li class="mb-1"><code>openai</code>: OpenAI 客戶端庫</li>
+                            <li class="mb-1"><code>aiohttp</code>: 異步 HTTP 客戶端/服務器</li>
+                            <li class="mb-1"><code>websockets</code>: WebSocket 客戶端/服務器</li>
+                            <li class="mb-1"><code>asyncio</code>: 異步 I/O 支援</li>
+                            <li class="mb-1"><code>python-dotenv</code>: 環境變數管理</li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <h3 class="text-xl font-semibold mb-4">快速開始</h3>
+                <div class="mb-4">
+                    <div class="mb-2 font-medium">1. 安裝依賴：</div>
+                    <div class="code-block">
+                        <code>pip install aiohttp websockets asyncio python-dotenv openai</code>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="mb-2 font-medium">2. 設置 API 密鑰（可選）：</div>
+                    <div class="code-block">
+                        <code>export OPENAI_API_KEY='your-api-key'</code>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="mb-2 font-medium">3. 啟動服務：</div>
+                    <div class="code-block">
+                        <code>python start_service.py</code>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="mb-2 font-medium">4. 訪問 Web 界面：</div>
+                    <div class="code-block">
+                        <code>http://localhost:8080</code>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 mt-8">高級配置</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">自定義端口和主機</h4>
+                        <div class="code-block text-sm">
+                            <code>python start_service.py --host 127.0.0.1 --web-port 8088 --ws-port 8766</code>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">啟用調試日誌</h4>
+                        <div class="code-block text-sm">
+                            <code>python start_service.py --debug</code>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">使用 SSL/TLS</h4>
+                        <div class="code-block text-sm">
+                            <code>python start_service.py --ssl-cert /path/to/cert.pem --ssl-key /path/to/key.pem</code>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <h4 class="font-semibold mb-2">指定 OpenAI API 密鑰</h4>
+                        <div class="code-block text-sm">
+                            <code>python start_service.py --openai-key YOUR_API_KEY</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="text-xl font-semibold mb-4 mt-8">擴展和改進方向</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-lock text-yellow-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">身份驗證</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">添加用戶認證機制，保護 API 密鑰和轉錄內容</p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-language text-blue-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">多語言界面</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">支援更多界面語言選項</p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-database text-green-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">轉錄結果存儲</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">添加數據庫存儲歷史轉錄記錄</p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-brain text-purple-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">高級功能</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">支援說話者識別、情感分析等附加功能</p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-tachometer-alt text-red-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">性能優化</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">實現音訊緩衝和壓縮，減少數據傳輸量</p>
+                    </div>
+                    
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fab fa-docker text-indigo-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">Docker 支援</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">添加容器化配置，簡化部署過程</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 架構部分 -->
+        <section id="architecture" class="mb-16 fade-in delay-300">
+            <h2 class="text-2xl font-bold mb-6 inline-flex items-center">
+                <i class="fas fa-project-diagram mr-2 text-indigo-600"></i>
+                系統架構
+            </h2>
+            <div class="card rounded-lg p-6 mb-8">
+                <p class="mb-6">
+                    專案由以下幾個主要組件構成：
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="feature-card border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-file-code text-blue-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">文件轉錄功能</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">
+                            處理預先錄製的音訊檔案，支援流式處理和多種轉錄選項。
+                        </p>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            主要檔案：<code>streaming_transcription.py</code>
+                        </div>
+                    </div>
+                    <div class="feature-card border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-server text-red-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">實時流式轉錄服務</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">
+                            通過 WebSocket 實現實時語音到文本的轉換，支援多客戶端連接。
+                        </p>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            主要檔案：<code>realtime_transcription_service.py</code>
+                        </div>
+                    </div>
+                    <div class="feature-card border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-globe text-green-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">Web 服務器</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">
+                            提供 Web 界面和 WebSocket 代理，方便使用者互動和管理轉錄過程。
+                        </p>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            主要檔案：<code>web_server.py</code>
+                        </div>
+                    </div>
+                    <div class="feature-card border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-play-circle text-yellow-600 text-xl mr-2"></i>
+                            <h3 class="text-lg font-semibold">一鍵啟動服務</h3>
+                        </div>
+                        <p class="text-gray-700 dark:text-gray-300 mb-2">
+                            簡化部署和啟動過程，同時管理所有服務組件。
+                        </p>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            主要檔案：<code>start_service.py</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系統流程圖 -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold mb-4">系統流程圖</h3>
+                    <div class="mermaid">
+                        flowchart TB
+                            subgraph 用戶環境
+                                B[瀏覽器] --> |訪問| W[Web界面]
+                                W --> |錄音| A[用戶麥克風]
+                                A --> |音訊數據| W
+                            end
+                            
+                            subgraph 服務器端
+                                W <-->|WebSocket連接| WS[Web服務器]
+                                WS <-->|代理WebSocket| RTS[實時轉錄服務]
+                                RTS <-->|WebSocket API| OAI[OpenAI API]
+                                
+                                FT[文件轉錄模組] --> |調用API| OAI
+                            end
+                            
+                            subgraph 啟動流程
+                                SS[start_service.py] --> |啟動| RTS
+                                SS --> |啟動| WS
+                            end
+                            
+                            B <-- 顯示轉錄結果 --> W
+                            
+                            classDef browser fill:#f9f,stroke:#333,stroke-width:2px;
+                            classDef server fill:#bbf,stroke:#333,stroke-width:2px;
+                            classDef api fill:#bfb,stroke:#333,stroke-width:2px;
+                            
+                            class B,W,A browser;
+                            class WS,RTS,FT,SS server;
+                            class OAI api;
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 核心組件分析 -->
+        <section id="features" class="mb-16 fade-in delay-300">
+            <h2 class="text-2xl font-bold mb-6 inline-flex items-center">
+                <i class="fas fa-cogs mr-2 text-indigo-600"></i>
+                核心組件分析
+            </h2>
+            
+            <!-- 文件轉錄組件 -->
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">1. 文件轉錄 (streaming_transcription.py)</h3>
+                <p class="mb-4">
+                    這個模組提供了對預先錄製音訊檔案進行轉錄的功能：
+                </p>
+                <div class="mb-4">
+                    <div class="code-title">文件轉錄類</div>
+                    <pre class="code-block">class StreamingTranscriber:
+    def __init__(self, api_key=None):
+        """初始化 OpenAI 客戶端"""
+        
+    def transcribe_file(self, audio_path, model="gpt-4o-mini-transcribe", prompt=None, language=None):
+        """對一個音訊檔案進行流式轉錄"""
+        
+    def save_transcription(self, text, output_path):
+        """將轉錄結果保存到文件"""</pre>
+                </div>
+                
+                <h4 class="font-semibold mt-6 mb-2">關鍵特性：</h4>
+                <ul class="list-disc pl-6 mb-4">
+                    <li class="mb-2">支援流式處理，即邊處理邊輸出結果</li>
+                    <li class="mb-2">支援指定轉錄模型，提供語言提示和特定詞彙輔助</li>
+                    <li class="mb-2">支援設置特定語言以提高識別準確度</li>
+                    <li class="mb-2">能夠保存轉錄結果到文件</li>
+                </ul>
+            </div>
+            
+            <!-- 實時轉錄服務組件 -->
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">2. 實時轉錄服務 (realtime_transcription_service.py)</h3>
+                <p class="mb-4">
+                    這是專案的核心組件，實現了通過 WebSocket 連接 OpenAI 的實時轉錄 API：
+                </p>
+                <div class="mb-4">
+                    <div class="code-title">實時轉錄服務關鍵函數</div>
+                    <pre class="code-block">async def handle_client(websocket, path):
+    """處理客戶端連接"""
+    
+async def init_openai_connection(client_ws, api_key, session_id, language=None):
+    """初始化與 OpenAI 的 WebSocket 連接"""
+    
+async def handle_openai_messages(openai_ws, client_ws, session_id):
+    """處理來自 OpenAI WebSocket 的消息並轉發給客戶端"""</pre>
+                </div>
+                
+                <h4 class="font-semibold mt-6 mb-2">工作流程：</h4>
+                <ol class="list-decimal pl-6 mb-4">
+                    <li class="mb-2">客戶端通過 WebSocket 連接到服務</li>
+                    <li class="mb-2">客戶端發送初始化請求（包含 API 密鑰和可選語言設置）</li>
+                    <li class="mb-2">服務器與 OpenAI 建立 WebSocket 連接</li>
+                    <li class="mb-2">客戶端發送音訊數據</li>
+                    <li class="mb-2">服務器將音訊數據轉發到 OpenAI</li>
+                    <li class="mb-2">OpenAI 處理並返回轉錄結果</li>
+                    <li class="mb-2">服務器將結果轉發給客戶端</li>
+                </ol>
+                
+                <h4 class="font-semibold mt-4 mb-2">關鍵特性：</h4>
+                <ul class="list-disc pl-6 mb-4">
+                    <li class="mb-2">支援多客戶端同時連接（使用會話 ID 管理）</li>
+                    <li class="mb-2">支援配置多種參數（語言、模型等）</li>
+                    <li class="mb-2">實時轉發音訊數據和轉錄結果</li>
+                    <li class="mb-2">支援結束會話和清理資源</li>
+                </ul>
+            </div>
+            
+            <!-- Web服務器組件 -->
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">3. Web 服務器 (web_server.py)</h3>
+                <p class="mb-4">
+                    提供 Web 界面和 WebSocket 代理功能：
+                </p>
+                <div class="mb-4">
+                    <div class="code-title">Web服務器關鍵函數</div>
+                    <pre class="code-block">async def index(request):
+    """提供主頁"""
+    
+async def websocket_proxy(request):
+    """WebSocket 代理，將客戶端連接轉發到轉錄服務"""
+    
+async def forward_messages(source, destination, direction):
+    """將消息從一個 WebSocket 連接轉發到另一個"""</pre>
+                </div>
+                
+                <h4 class="font-semibold mt-6 mb-2">功能：</h4>
+                <ul class="list-disc pl-6 mb-4">
+                    <li class="mb-2">提供靜態 HTML/CSS/JS 檔案（用戶界面）</li>
+                    <li class="mb-2">充當 WebSocket 代理，將客戶端請求轉發到實時轉錄服務</li>
+                    <li class="mb-2">支援雙向消息傳遞</li>
+                </ul>
+            </div>
+            
+            <!-- 一鍵啟動服務 -->
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">4. 一鍵啟動服務 (start_service.py)</h3>
+                <p class="mb-4">
+                    簡化部署和啟動過程：
+                </p>
+                <div class="mb-4">
+                    <div class="code-title">一鍵啟動服務關鍵函數</div>
+                    <pre class="code-block">def start_process(cmd, name):
+    """啟動子進程"""
+    
+def stop_processes():
+    """停止所有子進程"""</pre>
+                </div>
+                
+                <h4 class="font-semibold mt-6 mb-2">功能：</h4>
+                <ul class="list-disc pl-6 mb-4">
+                    <li class="mb-2">同時啟動實時轉錄服務和 Web 服務器</li>
+                    <li class="mb-2">處理命令行參數配置（主機、端口、SSL 等）</li>
+                    <li class="mb-2">管理進程生命週期和日誌輸出</li>
+                    <li class="mb-2">優雅關閉服務</li>
+                </ul>
+            </div>
+            
+            <!-- Web界面 -->
+            <div class="card rounded-lg p-6 mb-8">
+                <h3 class="text-xl font-semibold mb-4">5. Web 界面 (static/index.html)</h3>
+                <p class="mb-4">
+                    用戶友好的 Web 界面，提供以下功能：
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-key text-yellow-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">API 密鑰管理</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">輸入 OpenAI API 密鑰，安全連接服務</p>
+                    </div>
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-language text-blue-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">語言選擇</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">選擇音訊語言，提高識別準確度</p>
+                    </div>
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-plug text-green-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">連接管理</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">輕鬆連接或斷開 WebSocket 服務</p>
+                    </div>
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-microphone text-red-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">錄音控制</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">開始或停止錄音，進行實時轉錄</p>
+                    </div>
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-file-alt text-purple-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">結果顯示</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">實時顯示轉錄結果，方便查看和編輯</p>
+                    </div>
+                    <div class="border rounded-lg p-3 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-clipboard text-indigo-600 text-lg mr-2"></i>
+                            <h4 class="font-medium">複製功能</h4>
+                        </div>
+                        <p class="text-sm text-gray-700 dark:text-gray-300">一鍵複製轉錄結果到剪貼板</p>
+                    </div>
